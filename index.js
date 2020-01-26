@@ -21,7 +21,8 @@ app.post('/pdf', function (req, res) {
     htmlpdf.create(htmlData, {
         "format": "Letter",
         "orientation": "landscape",
-        "border": "0.25in"
+        "border": "0.25in",
+        "zoomFactor": 0.75
     }).toFile(tempPdfPath, (err, resp) => {
         let f = fs.readFileSync(tempPdfPath);
         res.send(f);
