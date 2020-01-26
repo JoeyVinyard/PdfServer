@@ -22,7 +22,7 @@ app.post('/pdf', function (req, res) {
         "format": "Letter",
         "orientation": "landscape",
         "border": "0.25in",
-        "zoomFactor": 0.75
+        "zoomFactor": 0.5
     }).toFile(tempPdfPath, (err, resp) => {
         let f = fs.readFileSync(tempPdfPath);
         res.send(f);
