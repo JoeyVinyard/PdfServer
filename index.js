@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const htmlpdf = require('html-pdf');
-const merge = require('easy-pdf-merge');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
