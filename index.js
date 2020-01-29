@@ -16,6 +16,9 @@ app.post('/pdf', function (req, res) {
     const schedule = req.body.data;
     const htmlData = se.exportSchedule(schedule);
     
+    const tmpDirPath = fs.mkdtempSync(os.tmpdir()+path.sep);
+    const tempPdfPath = path.join(tmpDirPath,"output.pdf"); 
+
     phantom.create().then((instance) => {
         return instance;
     }).then((instance) => {
