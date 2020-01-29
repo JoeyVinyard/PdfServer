@@ -8,10 +8,23 @@ const FONT = "{{FONT}}"
 exports.exportSchedule = (data) => {
   let generatedHTML = [];
 
-  let baseTable = "<html><body>{{TABLE}}</body><style>body{margin: 0} table{border:1px solid black;border-spacing:0;border-collapse:collapse;width:100%}  th{border:1px solid black; font-size: 13px} td{border-bottom:1px solid black}.name{border:1px solid black; font-size: 18px; padding-right: 5px}.left{border-right:1px solid black}.hbuffer{border:1px solid black;min-width:2px}.shaded{background-color:grey}.vbuffer .name,.vbuffer .hbuffer{height: 5px; border:1px solid black}</style></html>"
+  let baseTable = "<html><body>{{TABLE}}</body><style>"
+                + "body{margin: 0}"
+                + "table{border:1px solid black;border-collapse:collapse;width:100%}"
+                + "th{border:1px solid black; font-size: 13px}"
+                + ".label {font-size: 16px;}"
+                + ".name{min-width: 60px;}"
+                + ".name p{font-size: 13px; padding-right: 5px}"
+                + ".left{border-right:1px solid black}"
+                + ".hbuffer {min-width: 70px;}"
+                + ".hbuffer p{font-size: 13px; margin-right: 2px;}"
+                + ".shaded{background-color:grey}"
+                + ".vbuffer td {height: 3px;}"
+                + ".offRow {background-color: #ddd}"
+                + "</style></html>";
 
   data.sheets.forEach((ps, i) => {
-      generatedHTML.push(exportSheet(ps,data.sheetIds[i],data.timeIncrement));
+    generatedHTML.push(exportSheet(ps,data.sheetIds[i],data.timeIncrement));
   });
 
   baseTable = baseTable.replace(TABLE, generatedHTML.join("<div style='page-break-before: always;'></div>"));
@@ -23,7 +36,7 @@ const exportSheet = (sheet, id, timeIncrement) => {
 
   let baseTable = "<table>{{TABLE}}</table>"
 
-  let headerRow = "<tr><th class='label'>{{SHEET_LABEL}}</th><th class='hbuffer'></th>{{TIME_COLUMNS}}</tr>";
+  let headerRow = "<tr><th colspan=2 class='label'>{{SHEET_LABEL}}</th>{{TIME_COLUMNS}}</tr>";
   let baseTimeColumn = "<th colspan=2>{{TIME}}</th>";
   let timeHeaders = "";
 
@@ -42,19 +55,23 @@ const exportSheet = (sheet, id, timeIncrement) => {
       return r;
     });
   
-  let shiftRows = sheet.shifts.map((shift) => {
-      let s = "<tr><td class='name'>{{NAME}}</td><td class='hbuffer'>{{TIME}}</td>".replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)} -${timeToString(shift.endTime,false,false)}`);
-      tc.forEach((t) => {
-          s += `<td class='left ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
-      })
-      s += "</tr>";
-      return s;
+  let shiftRows = sheet.shifts.map((shift, i) => {
+    let s = `<tr class="${i%2==0 ? "" : "offRow"}"><td class='name'><p>{{NAME}}</p></td><td class='hbuffer'><p>{{TIME}}</p></td>`.replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)}-${timeToString(shift.endTime,false,false)}`);
+    tc.forEach((t, ind) => {
+        s += `<td class='left ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
+    })
+    s += "</tr>";
+    return s;
   });
 
-  
-  let shifts = shiftRows.join("<tr class='vbuffer'><td class='name'></td><td class='hbuffer'></td>" + tc.map(() => "<td class='left'></td><td class=''></td>").join("") + "</tr>");
-  
-  baseTable = baseTable.replace(TABLE, headerRow+shifts);
+  let shifts = [];
+  shiftRows.forEach((s,i) => {
+    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td></td>`).join("")}<tr>`)
+    shifts.push(s);
+    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td></td>`).join("")}<tr>`)
+  })
+
+  baseTable = baseTable.replace(TABLE, headerRow+shifts.join(""));
   return baseTable;
 }
 
@@ -99,9 +116,5 @@ const generateTimeColumns = (sheet, timeIncrement) => {
 }
 
 const timeToString = (time, space = true, epoch=true) => {
-  return `${time.hours == 12 || time.hours == 0 ? "12" : formatHour(time.hours%12)}:${time.minutes < 10 ? "0" + time.minutes : time.minutes}${space ? " " : ""}${epoch ? time.hours>=12 ? "PM" : "AM" : ""}`;
-}
-
-const formatHour = (h) => {
-  return h < 10 ? " "+h : h;
+  return `${time.hours == 12 || time.hours == 0 ? "12" : time.hours%12}:${time.minutes < 10 ? "0" + time.minutes : time.minutes}${space ? " " : ""}${epoch ? time.hours>=12 ? "PM" : "AM" : ""}`;
 }
