@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const se = require("./scheduleExport");
-const phantom = require('phantom');
+const puppeteer = require('puppeteer');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -19,27 +19,23 @@ app.post('/pdf', function (req, res) {
     const tmpDirPath = fs.mkdtempSync(os.tmpdir()+path.sep);
     const tempPdfPath = path.join(tmpDirPath,"output.pdf"); 
 
-    phantom.create().then((instance) => {
-        return instance;
-    }).then((instance) => {
-        return instance.createPage();
+    puppeteer.launch().then((browser) => {
+        return browser.newPage();
     }).then((page) => {
-        return page.setContent(htmlData, "").then(() => {
-            return page.property("paperSize", {
+        page.setContent(htmlData).then(() => {
+            page.pdf({
                 format: "Letter",
-                orientation: "Landscape",
-                margin: "0.4in"
-            }).then(() => {
-                return page.setting("dpi", "50").then(() => page);
-            });
+                landscape: true,
+                margin: {
+                    top: "0.4in",
+                    right: "0.4in",
+                    bottom: "0.4in",
+                    left: "0.4in"
+                }
+            }).then((b) => {
+                res.send(b);
+            })
         });
-    }).then((page) => {
-        return page.render(tempPdfPath)
-    }).then(() => {
-        res.send(fs.readFileSync(tempPdfPath));
-    }).catch((err) => {
-        console.error(err);
-        res.status(400).send("Error generating");
     });
 });
 
