@@ -30,7 +30,7 @@ app.post('/pdf', function (req, res) {
                 orientation: "Landscape",
                 margin: "0.4in"
             }).then(() => {
-                return page.setting("dpi", "96").then(() => page);
+                return page.setting("dpi", "50").then(() => page);
             });
         });
     }).then((page) => {
