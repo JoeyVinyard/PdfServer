@@ -22,25 +22,27 @@ app.post('/pdf', function (req, res) {
     puppeteer.launch({headless: true, args: ['--no-sandbox']}).then((browser) => {
         browser.newPage().then((page) => {
             page.setContent(htmlData).then(() => {
-                page.pdf({
-                    format: "Letter",
-                    landscape: true,
-                    margin: {
-                        top: "0.4in",
-                        right: "0.4in",
-                        bottom: "0.4in",
-                        left: "0.4in"
-                    },
-                    printBackground: true
-                }).then((b) => {
-                    browser.close().then(() => {
-                        res.send(b);
+                page.emulateMediaType('screen').then(() => {
+                    page.pdf({
+                        format: "Letter",
+                        landscape: true,
+                        margin: {
+                            top: "0.4in",
+                            right: "0.4in",
+                            bottom: "0.4in",
+                            left: "0.4in"
+                        },
+                        printBackground: true
+                    }).then((b) => {
+                        browser.close().then(() => {
+                            res.send(b);
+                        }).catch((err) => {
+                            throw err;
+                        })
                     }).catch((err) => {
                         throw err;
-                    })
-                }).catch((err) => {
-                    throw err;
-                });
+                    });
+                })
             });
         });
     }).catch((err) => {
