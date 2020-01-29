@@ -8,7 +8,7 @@ const FONT = "{{FONT}}"
 exports.exportSchedule = (data) => {
   let generatedHTML = [];
 
-  let baseTable = "<html><body>{{TABLE}}</body><style>body{margin: 0} table{border:1px solid black;border-spacing:0;border-collapse:collapse;width:100%} .label{font-size: 18px} th{border:1px solid black}td{border-bottom:1px solid black}.name{border:1px solid black; font-size: 18px; padding-right: 5px}.left{border-right:1px solid black}.hbuffer{border:1px solid black;min-width:2px}.shaded{background-color:grey}.vbuffer .name,.vbuffer .hbuffer{height: 5px; border:1px solid black}</style></html>"
+  let baseTable = "<html><body>{{TABLE}}</body><style>body{margin: 0} table{border:1px solid black;border-spacing:0;border-collapse:collapse;width:100%}  th{border:1px solid black; font-size: 13px} td{border-bottom:1px solid black}.name{border:1px solid black; font-size: 18px; padding-right: 5px}.left{border-right:1px solid black}.hbuffer{border:1px solid black;min-width:2px}.shaded{background-color:grey}.vbuffer .name,.vbuffer .hbuffer{height: 5px; border:1px solid black}</style></html>"
 
   data.sheets.forEach((ps, i) => {
       generatedHTML.push(exportSheet(ps,data.sheetIds[i],data.timeIncrement));
