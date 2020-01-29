@@ -35,7 +35,7 @@ const exportSheet = (sheet, id, timeIncrement) => {
     headerRow = headerRow.replace(TIME_COLUMNS, timeHeaders);
     
     let shiftRows = sheet.shifts.map((shift) => {
-        let s = "<tr><td class='name'>{{NAME}}</td><td class='hbuffer'></td>".replace(NAME, shift.empId);
+        let s = "<tr><td class='name'>{{NAME}}</td><td class='hbuffer'>{{TIME}}</td>".replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)} -${timeToString(shift.endTime,false,false)}`);
         tc.forEach((t) => {
             s += `<td class='left ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
         })
@@ -90,8 +90,8 @@ const generateTimeColumns = (sheet, timeIncrement) => {
     return times;
   }
 
-const timeToString = (time, space = true) => {
-    return `${time.hours == 12 || time.hours == 0 ? "12" : formatHour(time.hours%12)}:${time.minutes < 10 ? "0" + time.minutes : time.minutes}${space ? " " : ""}${time.hours>=12 ? "PM" : "AM"}`;
+const timeToString = (time, space = true, epoch=true) => {
+    return `${time.hours == 12 || time.hours == 0 ? "12" : formatHour(time.hours%12)}:${time.minutes < 10 ? "0" + time.minutes : time.minutes}${space ? " " : ""}${epoch ? time.hours>=12 ? "PM" : "AM" : ""}`;
 }
 
 const formatHour = (h) => {
