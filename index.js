@@ -3,8 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const se = require("./scheduleExport");
-// const convertHTMLToPDF = require("pdf-puppeteer");
-const htmlpdf = require('html-pdf');
+const phantom = require('phantom');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -17,32 +16,28 @@ app.post('/pdf', function (req, res) {
     const schedule = req.body.data;
     const htmlData = se.exportSchedule(schedule);
     
-    const tmpDirPath = fs.mkdtempSync(os.tmpdir()+path.sep);
-    const tempPdfPath = path.join(tmpDirPath,"output.pdf"); 
-
-    htmlpdf.create(htmlData, {
-        "format": "Letter",
-        "orientation": "landscape",
-        "border": "0.25in"
-    }).toFile(tempPdfPath, (err, resp) => {
-        let f = fs.readFileSync(tempPdfPath);
-        res.send(f);
+    phantom.create().then((instance) => {
+        return instance;
+    }).then((instance) => {
+        return instance.createPage();
+    }).then((page) => {
+        return page.setContent(htmlData, "").then(() => {
+            return page.property("paperSize", {
+                format: "Letter",
+                orientation: "Landscape",
+                margin: "0.4in"
+            }).then(() => {
+                return page.setting("dpi", "96").then(() => page);
+            });
+        });
+    }).then((page) => {
+        return page.render(tempPdfPath)
+    }).then(() => {
+        res.send(fs.readFileSync(tempPdfPath));
+    }).catch((err) => {
+        console.error(err);
+        res.status(400).send("Error generating");
     });
-
-    // convertHTMLToPDF(htmlData, (pdf) => {
-    //     res.send(pdf);
-    // }, {
-    //     width: "10.5in",
-    //     height: "8in",
-    //     margin: {
-    //         top: "0.2in",
-    //         right: "0.2in",
-    //         bottom: "0.2in",
-    //         left: "0.2in"
-    //     }
-    // }).catch((err) => {
-    //     console.error(err);
-    // });
 });
 
 app.get('/', function (req, res) {

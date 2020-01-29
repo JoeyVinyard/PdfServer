@@ -8,7 +8,7 @@ const FONT = "{{FONT}}"
 exports.exportSchedule = (data) => {
     let generatedHTML = [];
 
-    let baseTable = "<html><body>{{TABLE}}</body><style>body{margin: 0} table{border:1px solid black;border-spacing:0;border-collapse:collapse;width:100%} .label{font-size: 18px} th{font-size:{{FONT}}px}th{border:1px solid black}td{border-bottom:1px solid black}.name{border:1px solid black; font-size: 18px}.left{border-right:1px solid black}.hbuffer{border:1px solid black;min-width:2px}.shaded{background-color:grey}.vbuffer .name,.vbuffer .hbuffer{border:1px solid black}</style></html>"
+    let baseTable = "<html><body>{{TABLE}}</body><style>body{margin: 0} table{border:1px solid black;border-spacing:0;border-collapse:collapse;width:100%} .label{font-size: 18px} th{font-size:{{FONT}}px}th{border:1px solid black}td{border-bottom:1px solid black}.name{border:1px solid black; font-size: 18px; padding-right: 5px}.left{border-right:1px solid black}.hbuffer{border:1px solid black;min-width:2px}.shaded{background-color:grey}.vbuffer .name,.vbuffer .hbuffer{height: 5px; border:1px solid black}</style></html>"
 
     data.sheets.forEach((ps, i) => {
         generatedHTML.push(exportSheet(ps,data.sheetIds[i],data.timeIncrement));
@@ -33,6 +33,14 @@ const exportSheet = (sheet, id, timeIncrement) => {
     });
     headerRow = headerRow.replace(SHEET_LABEL, id.display);
     headerRow = headerRow.replace(TIME_COLUMNS, timeHeaders);
+
+    sheet.shifts = sheet.shifts.sort((a, b) => {
+        let r = convertTimeToNum(a.startTime) - convertTimeToNum(b.startTime);
+        if(r == 0) {
+          return convertTimeToNum(a.endTime) - convertTimeToNum(b.endTime);
+        }
+        return r;
+      });
     
     let shiftRows = sheet.shifts.map((shift) => {
         let s = "<tr><td class='name'>{{NAME}}</td><td class='hbuffer'></td>".replace(NAME, shift.empId);
@@ -42,6 +50,7 @@ const exportSheet = (sheet, id, timeIncrement) => {
         s += "</tr>";
         return s;
     });
+
     
     let shifts = shiftRows.join("<tr class='vbuffer'><td class='name'></td><td class='hbuffer'></td>" + tc.map(() => "<td class='left'></td><td class=''></td>").join("") + "</tr>");
     
