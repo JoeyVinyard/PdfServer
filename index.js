@@ -19,7 +19,7 @@ app.post('/pdf', function (req, res) {
     const tmpDirPath = fs.mkdtempSync(os.tmpdir()+path.sep);
     const tempPdfPath = path.join(tmpDirPath,"output.pdf"); 
     
-    puppeteer.launch().then((browser) => {
+    puppeteer.launch({ args: ['--no-sandbox'] }).then((browser) => {
         browser.newPage().then((page) => {
             page.setContent(htmlData).then(() => {
                 page.pdf({
