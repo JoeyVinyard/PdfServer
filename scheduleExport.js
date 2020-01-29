@@ -10,7 +10,7 @@ exports.exportSchedule = (data) => {
 
   let baseTable = "<html><body>{{TABLE}}</body><style>"
                 + "body{margin: 0}"
-                + "table{border:1px solid black; border-spacing: 0; width:100%}"
+                + "table{border:1px solid black; border-collapse: collapse; width:100%}"
                 + "th{border:1px solid black; font-size: 12px}"
                 + ".label {font-size: 16px;}"
                 + ".name{min-width: 60px;}"
