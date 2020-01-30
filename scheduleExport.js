@@ -10,7 +10,7 @@ exports.exportSchedule = (data) => {
 
   let baseTable = "<html><body>{{TABLE}}</body><style>"
                 + "body{margin: 0}"
-                + "table{border:1px solid black; border-collapse: collapse; width:100%; display: block;}"
+                + "table{border-collapse: collapse; width:100%}"
                 + "th{border:1px solid black; font-size: 12px}"
                 + ".label {font-size: 16px;}"
                 + ".name{min-width: 60px;}"
@@ -59,7 +59,7 @@ const exportSheet = (sheet, id, timeIncrement) => {
   let shiftRows = sheet.shifts.map((shift, i) => {
     let s = `<tr class="${i%2==0 ? "" : "offRow"}"><td class='name'><p>{{NAME}}</p></td><td class='hbuffer'><p>{{TIME}}</p></td>`.replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)}-${timeToString(shift.endTime,false,false)}`);
     tc.forEach((t, ind) => {
-        s += `<td class='left ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
+        s += `<td class='left ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='right ${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
     })
     s += "</tr>";
     return s;
@@ -67,9 +67,9 @@ const exportSheet = (sheet, id, timeIncrement) => {
 
   let shifts = [];
   shiftRows.forEach((s,i) => {
-    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td></td>`).join("")}<tr>`)
+    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td class="right"></td>`).join("")}<tr>`)
     shifts.push(s);
-    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td></td>`).join("")}<tr>`)
+    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td class="right"></td>`).join("")}<tr>`)
   })
 
   baseTable = baseTable.replace(TABLE, headerRow+shifts.join(""));
