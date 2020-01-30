@@ -22,6 +22,7 @@ exports.exportSchedule = (data) => {
                 + ".shaded{background-color:grey}"
                 + ".vbuffer td {height: 3px;}"
                 + ".offRow {background-color: #ddd}"
+                + ".last {border-bottom: 1px solid black}"
                 + "</style></html>";
 
   data.sheets.forEach((ps, i) => {
@@ -57,9 +58,9 @@ const exportSheet = (sheet, id, timeIncrement) => {
     });
   
   let shiftRows = sheet.shifts.map((shift, i) => {
-    let s = `<tr class="${i%2==0 ? "" : "offRow"}"><td class='name'><p>{{NAME}}</p></td><td class='hbuffer'><p>{{TIME}}</p></td>`.replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)}-${timeToString(shift.endTime,false,false)}`);
+    let s = `<tr class="${i%2==0 ? "" : "offRow"} "><td class='name ${i==sheet.shifts.length-1 ? "last" : ""}'><p>{{NAME}}</p></td><td class='hbuffer ${i==sheet.shifts.length-1 ? "last" : ""}'><p>{{TIME}}</p></td>`.replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)}-${timeToString(shift.endTime,false,false)}`);
     tc.forEach((t, ind) => {
-        s += `<td class='left ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='right ${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
+        s += `<td class='left ${i==sheet.shifts.length-1 ? "last" : ""} ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='right ${i==sheet.shifts.length-1 ? "last" : ""} ${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
     })
     s += "</tr>";
     return s;
