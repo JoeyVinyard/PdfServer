@@ -10,8 +10,8 @@ exports.exportSchedule = (data) => {
 
   let baseTable = "<html><body>{{TABLE}}</body><style>"
                 + "body{margin: 0}"
-                + "table{border-collapse: collapse; width:100%}"
-                + "th{border:1px solid black; font-size: 12px}"
+                + "table{border-collapse: collapse; width:100%; border: 1px solid black;}"
+                + "th{border-bottom:1px solid black; border-right:1px solid black; border-left:1px solid black; font-size: 12px}"
                 + ".label {font-size: 16px;}"
                 + ".name{min-width: 60px;}"
                 + ".name p{font-size: 12px; padding-right: 5px}"
@@ -58,9 +58,9 @@ const exportSheet = (sheet, id, timeIncrement) => {
     });
   
   let shiftRows = sheet.shifts.map((shift, i) => {
-    let s = `<tr class="${i%2==0 ? "" : "offRow"} "><td class='name ${i==sheet.shifts.length-1 ? "last" : ""}'><p>{{NAME}}</p></td><td class='hbuffer ${i==sheet.shifts.length-1 ? "last" : ""}'><p>{{TIME}}</p></td>`.replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)}-${timeToString(shift.endTime,false,false)}`);
+    let s = `<tr class="${i%2==0 ? "" : "offRow"}"><td class='name'><p>{{NAME}}</p></td><td class='hbuffer'><p>{{TIME}}</p></td>`.replace(NAME, shift.empId).replace(TIME, `${timeToString(shift.startTime,false,false)}-${timeToString(shift.endTime,false,false)}`);
     tc.forEach((t, ind) => {
-        s += `<td class='left ${i==sheet.shifts.length-1 ? "last" : ""} ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='right ${i==sheet.shifts.length-1 ? "last" : ""} ${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
+        s += `<td class='left ${shouldShade(t,shift,true) ? "shaded" : ""}'></td><td class='right ${shouldShade(t,shift,false) ? "shaded" : ""}'></td>`
     })
     s += "</tr>";
     return s;
@@ -68,9 +68,9 @@ const exportSheet = (sheet, id, timeIncrement) => {
 
   let shifts = [];
   shiftRows.forEach((s,i) => {
-    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td class="right"></td>`).join("")}<tr>`)
+    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td class="right"></td>`).join("")}</tr>`)
     shifts.push(s);
-    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"}"><td class="name"></td><td class="hbuffer"></td> ${tc.map((v,ind) => `<td class="left"></td><td class="right"></td>`).join("")}<tr>`)
+    shifts.push(`<tr class="vbuffer ${i%2==0 ? "" : "offRow"} ${i==sheet.shifts.length-1 ? "last" : ""}"><td class="name"></td><td class="hbuffer ${i==sheet.shifts.length-1 ? "last" : ""}"></td> ${tc.map((v,ind) => `<td class="left ${i==sheet.shifts.length-1 ? "last" : ""}"></td><td class="right ${i==sheet.shifts.length-1 ? "last" : ""}"></td>`).join("")}</tr>`)
   })
 
   baseTable = baseTable.replace(TABLE, headerRow+shifts.join(""));
